@@ -1,5 +1,5 @@
 # Apyron
-Implementación en Python del generador de horarios [Apeiron](https://apeiron.sourceforge.net).
+Implementación en Python del generador de horarios [Apeiron](http://apeiron.sourceforge.net).
 
 ## Estado de desarrollo
 **Esto es software ALFA**. Partes esenciales del programa no funcionan, así que es posible que algunas cosas no se vean como deberían, o puede hacer que tu computadora explote. _Los autores no se hacen responsables de horarios inexistentes, calentamiento global, profesores fantasmas, virus chinos, viajes en el tiempo, el fin del universo o cualquier otra clase de perjuicio por utilizar este programa._ _**QUEDA BAJO TU PROPIA RESPONSABILIDAD EL UTILIZAR ESTE PROGRAMA.**_
