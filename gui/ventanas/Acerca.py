@@ -5,13 +5,14 @@ Ventana Acerca que contiene información sobre la aplicación y sus creadores :)
 
 import sys
 import os
+import webbrowser
 import PySide2
 
 from PySide2 import QtCore, QtGui
 from PySide2.QtWidgets import *
 from PySide2.QtGui import QFont, QIcon, QKeySequence, QPixmap, QBitmap
 
-from util . Constants import *
+from util.Constants import *
 
 
 class Acerca(QDialog):
@@ -40,8 +41,7 @@ class Acerca(QDialog):
         
         # Agregamos los controles
         self._createControls(self)
-        # self._createFooter()
-        # self.centerToParent()
+        self._createFooter()
 
     def _createControls(self, parent):
         """Materias, profesores, etc"""
@@ -62,6 +62,7 @@ class Acerca(QDialog):
         # Widget del texto
         creditsContainer = QWidget(pagina)
         creditsContainer.setMinimumWidth(400)
+        creditsContainer.setMinimumHeight(320)
         creditsLayout = QVBoxLayout(creditsContainer)
 
         # Controles
@@ -136,25 +137,23 @@ class Acerca(QDialog):
     def _createFooter(self):
         self.footer = QWidget(self)
 
-        lblSearch = QLabel("Buscar:")
-        inputSearch = QLineEdit()
-        btnFilter = QPushButton("Filtrar")
-        btnClear = QPushButton("Limpiar")
-        btnDownload = QPushButton("Descargar")
+        btnOk = QPushButton("Aceptar")
+        btnOk.clicked.connect(self.close)
+        btnGoProject = QPushButton("Ir a la página del proyecto")
+        btnGoProject.clicked.connect(self.openProjectPage)
 
         footerGrid = QHBoxLayout(self.footer)
 
         footerGrid.addStretch()
-        footerGrid.addWidget(lblSearch)
-        footerGrid.addWidget(inputSearch)
-        footerGrid.addWidget(btnFilter)
-        footerGrid.addWidget(btnClear)
-        footerGrid.addWidget(btnDownload)
-        footerGrid.addStretch()
+        footerGrid.addWidget(btnOk)
+        footerGrid.addWidget(btnGoProject)
 
         self.footer.setLayout(footerGrid)
 
         self._addWidgetToScreen(self.footer)
+
+    def openProjectPage(self):
+        webbrowser.open(APP_WEBSITE)
 
     def _addWidgetToScreen(self, widget: QWidget):
         self.dialogLayout.addWidget(widget)
