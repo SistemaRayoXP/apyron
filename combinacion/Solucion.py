@@ -3,6 +3,8 @@
 Clase Solucion para administrar una posibilidad de acomodo de horario
 """
 
+import copy
+
 from carga.Grupo import Grupo
 from carga.Horario import Horario
 
@@ -45,7 +47,7 @@ class Solucion:
         s = self.crearSolucion()
         s.grupos = self.grupos.clone()
         s.huecos = self.huecos
-        s.horarioGlobal = self.horarioGlobal.copy()
+        s.horarioGlobal = copy.copy(self.horarioGlobal)
         return s
 
     def crearSolucion(self):

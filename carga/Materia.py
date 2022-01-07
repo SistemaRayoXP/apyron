@@ -3,6 +3,8 @@
 Clase Materia para administrar materias y los maestros y grupos que tengan registrados
 """
 
+import copy
+
 from carga.MateriaSiiau import MateriaSiiau
 
 
@@ -21,13 +23,13 @@ class Materia:
 
     def __copy__(self):
         m = Materia()
-        m.fuente = self.fuente.copy()
+        m.fuente = copy.copy(self.fuente)
         m.nombre = self.nombre
         m.creditos = self.creditos
         m.marca = self.marca
 
         for maestro in self.maestros:
-            m.maestros.append(maestro.copy())
+            m.maestros.append(copy.copy(maestro))
 
         return m
 

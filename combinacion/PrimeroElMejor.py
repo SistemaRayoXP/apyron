@@ -3,6 +3,8 @@
 Módulo del modelo combinatorio PrimeroElMejor
 """
 
+import copy
+
 from carga.AdDatos import AdDatos
 from carga.Grupo import Grupo
 from combinacion.ModeloCombinatorio import ModeloCombinatorio
@@ -22,7 +24,7 @@ class PrimeroElMejor(ModeloCombinatorio):
             return -1
 
     def __init__(self, datos: AdDatos):
-        super(datos)
+        super(PrimeroElMejor, self).__init__(datos)
 
     def ponerMateria(self, s, indiceMat: int):
         if indiceMat >= len(self.materias):
@@ -40,7 +42,7 @@ class PrimeroElMejor(ModeloCombinatorio):
                 self.huecos = s.getHuecos()
                 assert self.huecos <= self.maxHuecos
 
-                sc = self.s.copy()
+                sc = copy.copy(self.s)
 
                 if self.hashHuecos[self.huecos] == None:
                     self.hashHuecos[self.huecos] = []

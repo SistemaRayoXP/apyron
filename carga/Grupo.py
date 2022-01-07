@@ -3,6 +3,8 @@
 Clase Grupo para administrar grupos detectados del SIIAU
 """
 
+import copy
+
 from carga . Horario import Horario
 from carga . Maestro import Maestro
 
@@ -53,11 +55,11 @@ class Grupo:
             return False
 
     def __copy__(self):
-        g = Grupo(padre)
+        g = Grupo(self.padre)
         g.nrc = self.nrc
         g.sec = self.sec
         g.cup = self.cup
         g.dis = self.dis
-        g.horario = self.horario.copy()
+        g.horario = copy.copy(self.horario)
         g.marca = self.marca
         return g

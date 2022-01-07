@@ -4,8 +4,8 @@ Clase Maestro para administrar maestros y los grupos que administran
 """
 
 import copy
-from carga . Materia import Materia
 
+from carga.Materia import Materia
 
 class Maestro:
     materia = None
@@ -29,7 +29,7 @@ class Maestro:
         m.marca = self.marca
 
         for grupo in self.grupos:
-            m.grupos.append(grupo.copy())
+            m.grupos.append(copy.copy(grupo))
 
         return m
 

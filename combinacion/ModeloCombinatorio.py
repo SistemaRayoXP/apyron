@@ -4,6 +4,8 @@ Módulo base de la clase ModeloCombinatorio
 TODO: Implementar bien este módulo
 """
 
+import copy
+
 from carga.AdDatos import AdDatos
 from carga.Grupo import Grupo
 from carga.Horario import Horario
@@ -72,7 +74,7 @@ class ModeloCombinatorio:
 
     def ordenaPorDemanda(self, inverso: bool):
         # Ordenar por horarios mas tempranos
-        tmp_materias = self.materias.copy()
+        tmp_materias = copy.copy(self.materias)
 
         for x, mat in self.materias:
             mat = sorted(mat, key=lambda x: x.getDis())
@@ -82,7 +84,7 @@ class ModeloCombinatorio:
 
     def ordenaPorTemprano(self, inverso: bool):
         # Ordenar por horarios mas tempranos
-        tmp_materias = self.materias.copy()
+        tmp_materias = copy.copy(self.materias)
 
         for x, mat in self.materias:
             mat = sorted(mat, key=lambda x: x.horario.getHorarioTotal())
@@ -105,7 +107,7 @@ class ModeloCombinatorio:
         self.maxHuecosInt = datos.maxHuecosInt
         self.conCupo = datos.conCupo
 
-        self.horarioUsuario = datos.horarioUsuario.copy()
+        self.horarioUsuario = copy.copy(datos.horarioUsuario)
 
         self.materias = []
 
