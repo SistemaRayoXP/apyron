@@ -1,14 +1,13 @@
 # -*- coding: utf-8 -*-
 """
 Clase Solucion para administrar una posibilidad de acomodo de horario
-TODO: Implementar bien este módulo
 """
 
 from carga.Grupo import Grupo
 from carga.Horario import Horario
 
 
-class Solucion():
+class Solucion:
     grupos = []
     huecos = int()
     horarioGlobal = None
@@ -22,9 +21,9 @@ class Solucion():
 
         else:
             self.horarioGlobal.agregar(g.horario)
-            huecos = self.horarioGlobal.getHuecos()
-            horarioGlobal.quitar(g.horario)
-            return huecos
+            self.huecos = self.horarioGlobal.getHuecos()
+            self.horarioGlobal.quitar(g.horario)
+            return self.huecos
 
     def compatible(self, h: Horario):
         return self.horarioGlobal.compatible(h)
@@ -37,10 +36,10 @@ class Solucion():
         self.horarioGlobal.quitar(g.horario)
 
         # Arreglo porque en Python las listas son curiosamente simples
-        for x, grupo in enumerate(self.grupos):
-            if grupo == g:
-                self.grupos.pop(x)
-                break
+        try:
+            self.grupos.remove(g)
+        except ValueError:
+            pass
 
     def __copy__(self):
         s = self.crearSolucion()
@@ -52,8 +51,8 @@ class Solucion():
     def crearSolucion(self):
         return Solucion()
 
-    def getDescripcionGrupo(idx1: int, idx2: int):
-        if horarioGlobal.getHora(idx1, idx2):
+    def getDescripcionGrupo(self, idx1: int, idx2: int):
+        if self.horarioGlobal.getHora(idx1, idx2):
             for g in self.grupos:
                 if g.horario.getHora(idx1, idx2):
                     return g.getPadre().getPadre().getMateriaSiiau().getClave()
@@ -63,5 +62,5 @@ class Solucion():
     def getNumGrupos(self):
         return len(self.grupos)
 
-    def getGrupo(i: int):
+    def getGrupo(self, i: int):
         return self.grupos[i]

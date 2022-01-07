@@ -6,11 +6,13 @@ Módulo del modelo combinatorio PrimeroElMejor
 from carga.AdDatos import AdDatos
 from carga.Grupo import Grupo
 from combinacion.ModeloCombinatorio import ModeloCombinatorio
+from combinacion.Solucion import Solucion
+# from combinacion.SolucionConPeriodo import SolucionConPeriodo
 
 
 class PrimeroElMejor(ModeloCombinatorio):
 
-    @staticmethod(comparadorDeGrupos)
+    @staticmethod
     def comparadorDeGrupos(grupo1, grupo2):
         if grupo1.huecos > grupo2.huecos:
             return 1
@@ -23,45 +25,45 @@ class PrimeroElMejor(ModeloCombinatorio):
         super(datos)
 
     def ponerMateria(self, s, indiceMat: int):
-        if indiceMat >= len(materias):
-            if len(materias) > 0:
+        if indiceMat >= len(self.materias):
+            if len(self.materias) > 0:
                 self.progreso += 1
                 self.solCount += 1
 
-                if total > 0:
+                if self.total > 0:
                     self.fireProgreso(
                         f"[{self.solCount}] {self.progreso}/{round(self.total)}")
                 else:
                     self.fireProgreso(
-                        "Generando horarios ["+Integer.toString(solCount)+"]", -2)
+                        f"Generando horarios [{self.solCount}]", -2)
 
                 self.huecos = s.getHuecos()
-                assert huecos <= maxHuecos
+                assert self.huecos <= self.maxHuecos
 
                 sc = self.s.copy()
 
-                if self.hashHuecos[huecos] == None:
-                    self.hashHuecos[huecos] = []
+                if self.hashHuecos[self.huecos] == None:
+                    self.hashHuecos[self.huecos] = []
 
-                self.hashHuecos[huecos].append(sc)
+                self.hashHuecos[self.huecos].append(sc)
 
-                fireNuevaSolucion(sc)
+                self.fireNuevaSolucion(sc)
         else:
 
-            self.grupos = materias[indiceMat]
+            self.grupos = self.materias[indiceMat]
 
             # Calcular huecos
             for x, grupo in enumerate(self.grupos):
                 if self.s.compatible(grupo.horario):
-                    self.grupos[x].huecos = self.s.getHuecos(grupos[x])
+                    self.grupos[x].huecos = self.s.getHuecos(self.grupos[x])
                 else:
                     self.grupos[x].huecos = 1000  # Infinito
 
-            sorted(grupos, key=self.comparadorDeGrupos)
+            self.grupos = sorted(self.grupos, key=self.comparadorDeGrupos)
 
             # Empieza la combinacion
             for grupo in self.grupos:
-                if abortar:
+                if self.abortar:
                     break
 
                 self.salir = False
@@ -69,27 +71,27 @@ class PrimeroElMejor(ModeloCombinatorio):
                 if grupo.huecos >= 1000:  # Empiezan los no compatibles
                     self.salir = True
 
-                if indiceMat < len(materias)-1:  # no es la ultima materia
-                    if maxHuecosInt > -1 and grupo.huecos > maxHuecosInt:  # Condicion de no aceptacion
+                if indiceMat < len(self.materias)-1:  # no es la ultima materia
+                    if self.maxHuecosInt > -1 and grupo.huecos > self.maxHuecosInt:  # Condicion de no aceptacion
                         self.salir = True
 
                 else:
-                    if maxHuecos > -1 and grupo.huecos > maxHuecos:  # Condicion de no aceptacion
+                    if self.maxHuecos > -1 and grupo.huecos > self.maxHuecos:  # Condicion de no aceptacion
                         self.salir = True
 
-                if maxHorarios > -1 and solCount >= maxHorarios:  # Se supero el limite
+                if self.maxHorarios > -1 and self.solCount >= self.maxHorarios:  # Se supero el limite
                     self.salir = True
 
                 if self.salir:
-                    if maxHorarios == -1:
+                    if self.maxHorarios == -1:
                         tmp = len(self.grupos) - x
 
-                        for m in range(indiceMat + 1, len(materias)):
-                            tmp *= len(materias[m])
+                        for m in range(indiceMat + 1, len(self.materias)):
+                            tmp *= len(self.materias[m])
 
-                        progreso += tmp
+                        self.progreso += tmp
 
-                        if total > 0:
+                        if self.total > 0:
                             self.fireProgreso(
                                 f"[{self.solCount}] {self.progreso}/{self.total}", round(self.progreso * 100 // self.total))
                         else:
@@ -98,28 +100,28 @@ class PrimeroElMejor(ModeloCombinatorio):
 
                     break
 
-                self.s.agregar(grupos[x])
+                self.s.agregar(self.grupos[x])
                 self.ponerMateria(s, indiceMat+1)
-                self.s.quitar(grupos[x])
+                self.s.quitar(self.grupos[x])
 
     def combinar(self):
         comb = 1
-        for z in range(len(materias)):
-            comb *= len(materias[z])
+        for z in range(len(self.materias)):
+            comb *= len(self.materias[z])
             if comb < 0:  # Se desbordo
                 break
 
-        if maxHorarios > -1 and (maxHorarios < comb or comb < 0):
-            total = maxHorarios
+        if self.maxHorarios > -1 and (self.maxHorarios < comb or comb < 0):
+            total = self.maxHorarios
         else:
             total = comb
 
         progreso = 0
 
         if self.datos.evaluarPeriodos:
-            ponerMateria(SolucionConPeriodo(), 0)
+            self.ponerMateria(SolucionConPeriodo(), 0)
         else:
-            ponerMateria(Solucion(), 0)
+            self.ponerMateria(Solucion(), 0)
 
         if self.abortar:
             self.fireProgreso("Combinación cancelada", -1)

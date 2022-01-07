@@ -72,76 +72,27 @@ class ModeloCombinatorio:
 
     def ordenaPorDemanda(self, inverso: bool):
         # Ordenar por horarios mas tempranos
+        tmp_materias = self.materias.copy()
 
-        if not inverso:
-            for z in range(len(materias)):
-                for x in reversed(range(len(materias[z]) - 1)):
-                    for y in range(x, len(materias[z])-1):
-                        if materias[z][y].getDis() < materias[z][y+1].getDis():
-                            tmp = materias[z][y]
-                            materias[z][y] = materias[z][y+1]
-                            materias[z][y+1] = tmp
-                        else:
-                            break
+        for x, mat in self.materias:
+            mat = sorted(mat, key=lambda x: x.getDis())
+            tmp_materias[x] = mat
 
-        else:
-
-            for z in range(len(materias)):
-                for x in reversed(range(len(materias[z])-1)):
-                    for y in range(x, len(materias[z])-2):
-                        if materias[z][y].getDis() > materias[z][y+1].getDis():
-                            tmp = materias[z][y]
-                            materias[z][y] = materias[z][y+1]
-                            materias[z][y+1] = tmp
-                        else:
-                            break
+        self.materias = tmp_materias
 
     def ordenaPorTemprano(self, inverso: bool):
         # Ordenar por horarios mas tempranos
+        tmp_materias = self.materias.copy()
 
-        if inverso:
-            for z in range(len(materias)):
-                for x in reversed(range(len(materias[z])-1)):
-                    for y in range(x, len(materias[z])-2):
-                        if materias[z][y].horario.getHorarioTotal() < materias[z][y+1].horario.getHorarioTotal():
-                            tmp = materias[z][y]
-                            materias[z][y] = materias[z][y+1]
-                            materias[z][y+1] = tmp
-                        else:
-                            break
+        for x, mat in self.materias:
+            mat = sorted(mat, key=lambda x: x.horario.getHorarioTotal())
+            tmp_materias[x] = mat
 
-        else:
-            # for(int z=0;z<materias.length;z++):
-            for z in range(len(materias)):
-                for x in reversed(range(len(materias[z])-1)):
-                    for y in range(x, len(materias[z])-2):
-                        if(materias[z][y].horario.getHorarioTotal() > materias[z][y+1].horario.getHorarioTotal()):
-                            tmp = materias[z][y]
-                            materias[z][y] = materias[z][y+1]
-                            materias[z][y+1] = tmp
-                        else:
-                            break
+        self.materias = tmp_materias
 
     def ordenaPorNdGrupos(self, inverso: bool):
-        if inverso:
-            for x in reversed(range(len(materias)-1)):
-                for y in range(x, len(materias[z])-1):
-                    if len(materias[y]) < len(materias[y+1]):
-                        tmp = materias[y]
-                        materias[y] = materias[y+1]
-                        materias[y+1] = tmp
-                    else:
-                        break
-        else:
-
-            for x in reversed(range(len(materias)-1)):
-                for y in range(x, len(materias[z])-1):
-                    if len(materias[y]) > len(materias[y+1]):
-                        tmp = materias[y]
-                        materias[y] = materias[y+1]
-                        materias[y+1] = tmp
-                    else:
-                        break
+        # Ordenar por longitud de lista
+        self.materias = sorted(self.materias, key=lambda x: len(x))
 
     def __init__(self, datos: AdDatos):
         self.datos = datos
@@ -170,22 +121,23 @@ class ModeloCombinatorio:
                     # for (int z=0;z<maestro.grupos.size();z++){
                     for grp in maestro.grupos:
                         # Filtrar por cupo y por horario del usuario
-                        if (grp.getDis() > 0 or conCupo == False) and grp.subHorario(horarioUsuario):
+                        if (grp.getDis() > 0 or self.conCupo == False) and grp.subHorario(self.horarioUsuario):
                             self.grps += 1
 
-            materias[x] = []
+            self.materias[x] = []
+            idx = 0
 
             # for (int y=0;y<mat.maestros.size();y++){
             for maestro in mat.maestros:
                 if maestro.getMarca():  # Filtrar por maestro
                     for z, grp in enumerate(maestro.grupos):
                         # Filtrar por cupo y por horario del usuario
-                        if (grp.getDis() > 0 or conCupo == False) and grp.subHorario(horarioUsuario):
+                        if (grp.getDis() > 0 or self.conCupo == False) and grp.subHorario(self.horarioUsuario):
                             idx += 1
-                            materias[x][idx] = maestro.grupos[z]
+                            self.materias[x][idx] = maestro.grupos[z]
 
         # Ordenacion de materias
-        ordenaPorNdGrupos(False)
+        self.ordenaPorNdGrupos(False)
 
         # Ordenacion de grupos
         if datos.prDemanda > -1:
@@ -235,26 +187,26 @@ class ModeloCombinatorio:
         self.solCount = 0
 
     def fireProgreso(self, estado: str, porcentaje: int):
-        for evento in eventos:
+        for evento in self.eventos:
             evento.progreso(estado, porcentaje)
 
     def fireNuevaSolucion(self, s):
-        for evento in eventos:
+        for evento in self.eventos:
             evento.nuevaSolucion(s)
 
     def run(self):
         try:
             self.combinar()
 
-            if (solCount > 0):
+            if self.solCount > 0:
                 self.arrSol = []
 
                 indice = 0
 
                 for x in range(90):
-                    if hashHuecos[x] != None:
-                        for i in range(len(hashHuecos[x])):
-                            self.arrSol.append(hashHuecos[x][i])
+                    if self.hashHuecos[x] != None:
+                        for i in range(len(self.hashHuecos[x])):
+                            self.arrSol.append(self.hashHuecos[x][i])
                             indice += 1
                 self.fireProgreso("Proceso terminado al", -3)
 

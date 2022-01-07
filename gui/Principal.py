@@ -67,7 +67,7 @@ class Principal(QMainWindow):
         self._createFooter()
 
         # TODO: Arreglar el estilo oscuro en Win32 y X11
-        self._style()
+        self._setPlatformStyle()
 
     def _createMenus(self):
         # Menú Archivo
@@ -353,18 +353,24 @@ class Principal(QMainWindow):
             # Grupo General
             lblMaxAGenerar = QLabel(
                 "Número máximo de horarios a generar:", gboxGeneral)
-            MaxAGenerar = QLineEdit("50000", gboxGeneral)
+            self.MaxAGenerar = QLineEdit("50000", gboxGeneral)
+            self.MaxAGenerar.setValidator(QtGui.QIntValidator())
+            self.MaxAGenerar.editingFinished.connect(self._MaxHorariosCambio)
 
             lblHuecos = QLabel("Huecos permisibles:", gboxGeneral)
-            HuecosPerm = QLineEdit("2", gboxGeneral)
+            self.HuecosPerm = QLineEdit("2", gboxGeneral)
+            self.HuecosPerm.setValidator(QtGui.QIntValidator(-1, 2))
+            self.HuecosPerm.editingFinished.connect(self._HuecosCambio)
 
             lblHuecosInter = QLabel(
                 "Huecos intermedios permisibles:", gboxGeneral)
-            HuecosInterPerm = QLineEdit("-1", gboxGeneral)
+            self.HuecosInterPerm = QLineEdit("-1", gboxGeneral)
+            self.HuecosInterPerm.setValidator(QtGui.QIntValidator(-1, 2))
+            self.HuecosInterPerm.editingFinished.connect(self._HuecosInterCambio)
 
             lblHuecosAyuda = QLabel("-1 significa infinito", gboxGeneral)
             lblHuecosAyuda.setAlignment(Qt.AlignRight)
-            lblHuecosAyuda.setStyleSheet("QLabel { color: blue; }")
+            lblHuecosAyuda.setStyleSheet("QLabel { color: #77F; }")
 
             # Grupo Orden
             lblOrdenAyuda = QLabel(
@@ -372,38 +378,43 @@ class Principal(QMainWindow):
                 "de menor a mayor y un nº negativo es de mayor a menor",
                 gboxOrden
             )
-            lblOrdenAyuda.setStyleSheet("QLabel { color: blue; }")
+            lblOrdenAyuda.setStyleSheet("QLabel { color: #77F; }")
 
             SoloConCupo = QCheckBox(
-                "Solo considerar grupos con cupo",
-                gboxOrden
-            )
+                "Solo considerar grupos con cupo", gboxOrden)
+            SoloConCupo.stateChanged.connect(self._SoloCupoCambio)
             MateriasEspejo = QCheckBox(
                 "Tomar periodos en cuenta (materias espejo)", gboxOrden)
+            MateriasEspejo.stateChanged.connect(self._ConsPeriodoCambio)
+
             lblHora = QLabel("Hora del día:", gboxOrden)
-            PrioriHora = QLineEdit("2", gboxOrden)
+            self.PrioriHora = QLineEdit("2", gboxOrden)
+            self.PrioriHora.setValidator(QtGui.QIntValidator(-1, 2))
+            self.PrioriHora.editingFinished.connect(self._PriHoraCambio)
 
             lblDemanda = QLabel("Demanda:", gboxOrden)
-            PrioriDemanda = QLineEdit("-1", gboxOrden)
+            self.PrioriDemanda = QLineEdit("-1", gboxOrden)
+            self.PrioriDemanda.setValidator(QtGui.QIntValidator(-1, 2))
+            self.PrioriDemanda.editingFinished.connect(self._PriDemaCambio)
 
             # Disposición de controles
             # ========================
 
             gridGeneral.addWidget(lblMaxAGenerar, 0, 0)
-            gridGeneral.addWidget(MaxAGenerar, 0, 1)
+            gridGeneral.addWidget(self.MaxAGenerar, 0, 1)
             gridGeneral.addWidget(lblHuecos, 1, 0)
-            gridGeneral.addWidget(HuecosPerm, 1, 1)
+            gridGeneral.addWidget(self.HuecosPerm, 1, 1)
             gridGeneral.addWidget(lblHuecosInter, 2, 0)
-            gridGeneral.addWidget(HuecosInterPerm, 2, 1)
+            gridGeneral.addWidget(self.HuecosInterPerm, 2, 1)
             gridGeneral.addWidget(lblHuecosAyuda, 3, 1, QtGui.Qt.AlignLeft)
             gridGeneral.addWidget(SoloConCupo, 4, 0, QtGui.Qt.AlignTop)
             gridGeneral.addWidget(MateriasEspejo, 5, 0, QtGui.Qt.AlignTop)
 
             gridOrden.addWidget(lblOrdenAyuda, 0, 0, 1, 2)
             gridOrden.addWidget(lblHora, 1, 0)
-            gridOrden.addWidget(PrioriHora, 1, 1)
+            gridOrden.addWidget(self.PrioriHora, 1, 1)
             gridOrden.addWidget(lblDemanda, 2, 0, -1, 1, QtGui.Qt.AlignTop)
-            gridOrden.addWidget(PrioriDemanda, 2, 1, -1, 1, QtGui.Qt.AlignTop)
+            gridOrden.addWidget(self.PrioriDemanda, 2, 1, -1, 1, QtGui.Qt.AlignTop)
 
             paginaLayout.addWidget(gboxGeneral)
             paginaLayout.addWidget(gboxOrden)
@@ -464,8 +475,49 @@ class Principal(QMainWindow):
 
     @Slot()
     def _showDialogCombinador(self):
-        dialog = Combinador.Combinador(self)
+        dialog = Combinador.Combinador(self, self.datos)
         dialog.show()
+
+    @Slot()
+    def _MaxHorariosCambio(self):
+        print("_MaxHorariosCambio")
+        self.datos.maxHorarios = self.MaxAGenerar.text()
+
+    @Slot()
+    def _HuecosCambio(self):
+        self.datos.maxHuecos = self.HuecosPerm.text()
+
+    @Slot()
+    def _HuecosInterCambio(self):
+        self.datos.maxHuecosInt = self.HuecosInterPerm.text()
+
+    @Slot()
+    def _SoloCupoCambio(self, state: int):
+        # Cabe considerar que se nos da un 2 si se marca, o un 0 si no
+        # se marca, reservando el 1 a un estado "intermedio" (la casilla
+        # rellena pero no marcada)
+        if state:
+            self.datos.conCupo = True
+        else:
+            self.datos.conCupo = False
+
+    @Slot()
+    def _ConsPeriodoCambio(self, state: int):
+        # Cabe considerar que se nos da un 2 si se marca, o un 0 si no
+        # se marca, reservando el 1 a un estado "intermedio" (la casilla
+        # rellena pero no marcada)
+        if state:
+            self.datos.evaluarPeriodos = True
+        else:
+            self.datos.evaluarPeriodos = False
+
+    @Slot()
+    def _PriHoraCambio(self):
+        self.datos.prHora = self.PrioriHora.text()
+
+    @Slot()
+    def _PriDemaCambio(self):
+        self.datos.prDemanda = self.PrioriDemanda.text()
 
     @Slot()
     def _horasMatutino(self):
@@ -688,7 +740,9 @@ class Principal(QMainWindow):
             item.setData(QtGui.Qt.UserRole, m)
             self.listSubjects.addItem(item)
 
-    def _style(self):
+    def _setPlatformStyle(self):
+        # A ver si descubro cómo rayos hacer una buena interfaz
+        # Los temas de GTK no se aplican a aplicaciones en Qt escritas en Python, qué estupendo
         styleSheet = """
             background-color: #333;
             color: #FFF;
